@@ -91,16 +91,21 @@ export class ProductService {
 }
 
   /** Borrado en localStorage */
-  deleteProduct(id: number): Observable<void> {
-    return this.http.delete(`${this.base}/products/${id}`).pipe(
-      map(() => void 0),
-      tap(() => {
-        const list = this.readCache().filter(p => p.id !== id);
-        this.writeCache(list);
-      }),
-      catchError(err => this.handleError(err))
-    );
-  }
+deleteProduct(id: number): Observable<void> {
+  return this.http.delete(`${this.base}/products/${id}`, { observe: 'response' }).pipe(
+    catchError((err: HttpErrorResponse) => {
+      if (err.status === 404 || err.status === 405 || err.status === 0) {
+        return of(null); 
+      }
+      return throwError(() => err); 
+    }),
+    tap(() => {
+      const list = this.readCache().filter(p => p.id !== id);
+      this.writeCache(list);
+    }),
+    map(() => void 0)
+  );
+}
 
   /* Recarga cache */
   refreshFromApi(): Observable<Product[]> {
