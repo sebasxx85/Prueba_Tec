@@ -107,4 +107,5 @@ export class ProductService {
     localStorage.removeItem(LS_KEY);
     return this.getProducts();
   }
+  ////
 }
