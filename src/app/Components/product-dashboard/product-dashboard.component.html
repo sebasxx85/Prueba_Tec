@@ -2,6 +2,7 @@
   <header class="toolbar">
     <h1>Tabla de Productos</h1>
     <button class="btn" (click)="openModal()">Agregar producto</button>
+     <button class="btn ghost" (click)="hardRefresh()">Refrescar API</button>
   </header>
 
   <section class="table-wrap" *ngIf="!vm.loading; else loadingTpl">
@@ -48,13 +49,13 @@
 
       <label>
         Precio
-        <input type="number" step="0.01" formControlName="price">
+        <input type="number" step="1" min="1" formControlName="Precio" (keydown)="blockBadKeys($event)" (input)="fixMinDecimal('price', 0.01)">
         <small class="error" *ngIf="f.price.touched && f.price.invalid">Precio &gt; 0.</small>
       </label>
 
       <label>
         Stock
-        <input type="number" formControlName="stock">
+        <input type="number" step="1" min="1" formControlName="stock" (keydown)="blockBadKeys($event)" (input)="fixMinInt('stock', 1)">
         <small class="error" *ngIf="f.stock.touched && f.stock.invalid">Stock ≥ 0.</small>
       </label>
 
