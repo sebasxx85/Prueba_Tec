@@ -2,24 +2,30 @@
   <header class="toolbar">
     <h1>Tabla de Productos</h1>
     <button class="btn" (click)="openModal()">Agregar producto</button>
-     <button class="btn ghost" (click)="hardRefresh()">Refrescar API</button>
+    <button class="btn ghost" (click)="hardRefresh()">Refrescar API</button>
   </header>
 
   <section class="table-wrap" *ngIf="!vm.loading; else loadingTpl">
     <table *ngIf="vm.products.length; else emptyTpl">
+      <colgroup>
+        <col style="width: 60%">
+        <col style="width: 16%">
+        <col style="width: 12%">
+        <col style="width: 12%">
+      </colgroup>
       <thead>
         <tr>
           <th>Nombre</th>
-          <th class="num">Precio</th>
-          <th class="num">Stock</th>
+          <th class="num" style="text-align:right; padding-right:24px;">Precio</th>
+          <th class="num" style="text-align:right; padding-right:24px;">Stock</th>
           <th></th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let p of vm.products; trackBy: trackById">
           <td>{{ p.name }}</td>
-          <td class="num">{{ p.price | number:'1.2-2' }}</td>
-          <td class="num">{{ p.stock }}</td>
+          <td class="num" style="text-align:right; padding-right:24px;">{{ p.price | number:'1.0-0' }}</td>
+          <td class="num" style="text-align:right; padding-right:24px;">{{ p.stock }}</td>
           <td class="actions">
             <button class="btn danger" (click)="remove(p)">Eliminar</button>
           </td>
@@ -49,14 +55,16 @@
 
       <label>
         Precio
-        <input type="number" step="1" min="1" formControlName="Precio" (keydown)="blockBadKeys($event)" (input)="fixMinDecimal('price', 0.01)">
-        <small class="error" *ngIf="f.price.touched && f.price.invalid">Precio &gt; 0.</small>
+        <input type="number" step="1" min="1" formControlName="price"
+               (keydown)="blockBadKeys($event)" (input)="fixMinInt('price', 1)">
+        <small class="error" *ngIf="f.price.touched && f.price.invalid">Precio ≥ 1.</small>
       </label>
 
       <label>
         Stock
-        <input type="number" step="1" min="1" formControlName="stock" (keydown)="blockBadKeys($event)" (input)="fixMinInt('stock', 1)">
-        <small class="error" *ngIf="f.stock.touched && f.stock.invalid">Stock ≥ 0.</small>
+        <input type="number" step="1" min="1" formControlName="stock"
+               (keydown)="blockBadKeys($event)" (input)="fixMinInt('stock', 1)">
+        <small class="error" *ngIf="f.stock.touched && f.stock.invalid">Stock ≥ 1.</small>
       </label>
 
       <div class="modal-actions">

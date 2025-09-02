@@ -32,16 +32,15 @@ export class ProductDashboardComponent {
     )
   );
 
-  // Form con mínimos 
+  // mínimos: price >= 1, stock >= 1
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(60)]],
-    price: [0, [Validators.required, Validators.min(0.01)]],
-    stock: [0, [Validators.required, Validators.min(0)]], // usa 1 si lo quieres mínimo 1
+    price: [1, [Validators.required, Validators.min(1)]],
+    stock: [1, [Validators.required, Validators.min(1)]],
   });
 
-
   openModal() { this.showModal = true; }
-  closeModal() { this.showModal = false; this.form.reset({ price: 0, stock: 0 }); }
+  closeModal() { this.showModal = false; this.form.reset({ price: 1, stock: 1 }); }
 
   submit() {
     if (this.form.invalid) return;
@@ -68,16 +67,11 @@ export class ProductDashboardComponent {
     });
   }
 
-  // Utilidades de entrada numérica 
+  // Entradas numéricas
   blockBadKeys(ev: KeyboardEvent) {
     if (['e', 'E', '+', '-'].includes(ev.key)) ev.preventDefault();
   }
 
-  /**
-   * Fuerza límites para un control numérico.
-   * - si está vacío => emptyValue
-   * - si es negativo => negativeValue
-   */
   enforceBounds(
     ctrlName: string,
     opts: { min?: number; max?: number; emptyValue?: number; negativeValue?: number; integer?: boolean } = {}
@@ -86,7 +80,6 @@ export class ProductDashboardComponent {
     if (!c) return;
 
     const raw = c.value as any;
-
     if (raw === '' || raw === null || raw === undefined) {
       if (opts.emptyValue !== undefined) c.setValue(opts.emptyValue, { emitEvent: false });
       return;
@@ -95,28 +88,19 @@ export class ProductDashboardComponent {
     let n = Number(raw);
     if (!Number.isFinite(n)) return;
 
-    if (n < 0 && opts.negativeValue !== undefined) {
-      n = opts.negativeValue;
-    }
-
+    if (n < 0) n = opts.negativeValue ?? (opts.min ?? 1);
     if (opts.min !== undefined && n < opts.min) n = opts.min;
     if (opts.max !== undefined && n > opts.max) n = opts.max;
-
     if (opts.integer) n = Math.floor(n);
 
     c.setValue(n, { emitEvent: false });
   }
 
-  fixMinDecimal(ctrlName: string, min = 0.01): void {
-    this.enforceBounds(ctrlName, { min, emptyValue: min, negativeValue: min });
-  }
 
   fixMinInt(ctrlName: string, min = 1): void {
     this.enforceBounds(ctrlName, { min, emptyValue: min, negativeValue: min, integer: true });
   }
 
-  // helpers de template
   trackById = (_: number, item: Product) => item.id!;
   get f() { return this.form.controls; }
-
 }
