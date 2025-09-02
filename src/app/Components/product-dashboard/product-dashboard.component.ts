@@ -42,23 +42,30 @@ export class ProductDashboardComponent {
   openModal() { this.showModal = true; }
   closeModal() { this.showModal = false; this.form.reset({ price: 0, stock: 0 }); }
 
-  submit() {
-    if (this.form.invalid) return;
-    const dto = this.form.getRawValue() as Product;
-    this.api.addProduct(dto).subscribe({
-      next: () => { this.closeModal(); this.reload$.next(); },
-      error: e => { console.error('Error al agregar:', e); alert('No se pudo agregar'); }
-    });
-  }
+ submit() {
+  if (this.form.invalid) return;
+  const dto = this.form.getRawValue() as Product;
+  this.api.addProduct(dto).subscribe({
+    next: () => { this.closeModal(); this.reload$.next(); },
+    error: e => { console.error('Error al agregar:', e); alert('No se pudo agregar'); }
+  });
+}
 
-  remove(p: Product) {
-    if (!p.id) return;
-    if (!confirm(`¿Eliminar "${p.name}"?`)) return;
-    this.api.deleteProduct(p.id).subscribe({
-      next: () => this.reload$.next(),
-      error: e => { console.error('Error al eliminar:', e); alert('No se pudo eliminar'); }
-    });
-  }
+remove(p: Product) {
+  if (!p.id) return;
+  if (!confirm(`¿Eliminar "${p.name}"?`)) return;
+  this.api.deleteProduct(p.id).subscribe({
+    next: () => this.reload$.next(),   // ← ahora recarga desde localStorage
+    error: e => { console.error('Error al eliminar:', e); alert('No se pudo eliminar'); }
+  });
+}
+
+hardRefresh() {
+  this.api.refreshFromApi().subscribe({
+    next: () => this.reload$.next(),
+    error: e => console.error(e)
+  });
+}
 
   trackById = (_: number, item: Product) => item.id!;
   get f() { return this.form.controls; }
